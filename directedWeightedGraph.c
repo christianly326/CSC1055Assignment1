@@ -62,9 +62,9 @@ void deleteArc(Graph* graph, int source, int destination) {
     Edge* current = graph->vertices[source].head;
     Edge* prev = NULL;
 
-    while (current != NULL) {
+    while (current != NULL) { // Iterate through the head of the Linked List that are all the connections from the source and if we find the connection from source to destination then we will remove the link and release it from memory
         if (current->destination == destination) {
-            if (prev == NULL) {
+            if (prev == NULL) { // If we are @ the head  
                 graph->vertices[source].head = current->next;
             } else {
                 prev->next = current->next;
@@ -80,9 +80,9 @@ void deleteArc(Graph* graph, int source, int destination) {
 // Function to delete a vertex and all associated edges
 void deleteVertex(Graph* graph, int vertex) {
     for (int i = 0; i < graph->vertexCount; i++) {
-        deleteArc(graph, i, vertex);
+        deleteArc(graph, i, vertex);  // remove all the possible connections from the vertex 
     }
-    free(graph->vertices[vertex].head);
+    free(graph->vertices[vertex].head); 
     graph->vertices[vertex].head = NULL;
 }
 
@@ -171,14 +171,23 @@ void shortestPath(Graph* graph, int start, int end) {
     }
 
     if (dist[end] == INF) {
-        printf("No path from %d to %d\n", start, end);
+        printf("No path from %d to %d\n", start + 1, end + 1);
     } else {
-        printf("Shortest path from %d to %d: ", start, end);
+        // Collect the path in an array
+        int path[graph->vertexCount];
+        int pathLength = 0;
         for (int at = end; at != -1; at = prev[at]) {
-            printf("%d ", at);
+            path[pathLength++] = at;  // Add each vertex to the path array
         }
-        printf("\nCost: %d\n", dist[end]);
+
+        // Print the path in correct order
+        printf("(%d, %d) ", start + 1, end + 1);
+        printf("%d", path[pathLength - 1] + 1);  
+        for (int i = pathLength - 2; i >= 0; i--) {
+            printf(",%d", path[i] + 1);  
+        }
     }
+
 
     free(dist);
     free(visited);
@@ -213,7 +222,7 @@ void allShortestPaths(Graph* graph) {
             next[i][j] = -1; // Initialize next array to -1
         }
 
-        Edge* edge = graph->vertices[i].head;
+        Edge* edge = graph->vertices[i].head;  // Go through all the vertices and their connections
         while (edge != NULL) {
             dist[i][edge->destination] = edge->weight;
             next[i][edge->destination] = edge->destination; // Set the next node in the path
@@ -283,26 +292,22 @@ void freeGraph(Graph* graph) {
 
 
 int main() {
-    // Initialize a graph with 5 vertices
     int vertices = 5;
     Graph* graph = createGraph(vertices);
 
-    // Adding arcs with weights as specified
     printf("Adding edges to the graph:\n");
-    addArc(graph, 0, 3, 30);  // Edge from vertex 1 to 4 with weight 30
-    addArc(graph, 0, 4, 100); // Edge from vertex 1 to 5 with weight 100
-    addArc(graph, 0, 1, 10);  // Edge from vertex 1 to 2 with weight 10
-    addArc(graph, 1, 2, 50);  // Edge from vertex 2 to 3 with weight 50
-    addArc(graph, 2, 4, 10);  // Edge from vertex 3 to 5 with weight 10
-    addArc(graph, 3, 2, 20);  // Edge from vertex 4 to 3 with weight 20
-    addArc(graph, 3, 4, 60);  // Edge from vertex 4 to 5 with weight 60
+    addArc(graph, 0, 3, 30);
+    addArc(graph, 0, 4, 100); 
+    addArc(graph, 0, 1, 10);  
+    addArc(graph, 1, 2, 50); 
+    addArc(graph, 2, 4, 10); 
+    addArc(graph, 3, 2, 20);  
+    addArc(graph, 3, 4, 60); 
 
-    // Display the adjacency list representation of the graph
-    printf("Graph Adjacency List:\n");
+    printf("Graph:\n");
     printGraph(graph);
 
-    // Test Floyd-Warshall algorithm for all-pairs shortest paths
-    printf("\nAll Shortest Paths using Floyd-Warshall:\n");
+    printf("\nAll Shortest Paths:\n");
     allShortestPaths(graph);
 
     // Test Dijkstra's algorithm for shortest path between two vertices
@@ -310,7 +315,6 @@ int main() {
     int end = 4;   // Vertex 5 in 0-based indexing
     printf("\nShortest path from %d to %d using Dijkstra's algorithm:\n", start + 1, end + 1);
     shortestPath(graph, start, end);
-
     // Add a new vertex and an edge
     printf("\nAdding a new vertex and edge:\n");
     addVertex(graph);
